@@ -80,6 +80,8 @@ namespace RoboCoop
         {
             DialogResult res = MessageBox.Show("Do you really want to exit?", "Exit Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             e.Cancel = (res == DialogResult.No);
+            SqlCommandBuilder cmb = new SqlCommandBuilder(DA);
+            DA.Update(DS,"Task");
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -88,19 +90,19 @@ namespace RoboCoop
             {
                 
                 DS.Clear();
-                DA = new SqlDataAdapter("select * from Robot;select * from Task;select * from TaskRobot", conx);
+                DA = new SqlDataAdapter("select * from Task;select * from Robot;select * from TaskRobot", conx);
 
                
-                DA.TableMappings.Add("Robot", "RobotTab");
                 DA.TableMappings.Add("Task", "TaskTab");
+                DA.TableMappings.Add("Robot", "RobotTab");
                 DA.TableMappings.Add("TaskRobot", "TaskRobotTab");
                 DA.Fill(DS); //le chargement du DataSet
 
-                int nbTables = DS.Tables.Count;
+                //int nbTables = DS.Tables.Count; /o get tables count in the dataSet
                 
                 //Give Names for tables
-                DS.Tables[0].TableName = "RobotTab";
-                DS.Tables[1].TableName = "TaskTab";
+                DS.Tables[0].TableName = "TaskTab";
+                DS.Tables[1].TableName = "RobotTab";
                 DS.Tables[2].TableName = "TaskRobotTab";
                /* DS.Tables[0].Columns[0].DataType = System.Type.GetType("System.Int32");
                 DS.Tables[0].Columns[1].DataType = System.Type.GetType("System.String");
@@ -114,27 +116,27 @@ namespace RoboCoop
                 */
 
                 //Set Auto-Incriment Priamry key column for the Robot Table
-                DS.Tables[0].Columns["Id"].AllowDBNull = false;
-                DS.Tables[0].Columns["Id"].AutoIncrement = true;//precise si la colonne est automatiquement 
-                if (DS.Tables[0].Rows.Count == 0)
-                    DS.Tables[0].Columns["Id"].AutoIncrementSeed = 10;
+                DS.Tables[1].Columns["Id"].AllowDBNull = false;
+                DS.Tables[1].Columns["Id"].AutoIncrement = true;//precise si la colonne est automatiquement 
+                if (DS.Tables[1].Rows.Count == 0)
+                    DS.Tables[1].Columns["Id"].AutoIncrementSeed = 10;
                 else
-                    DS.Tables[0].Columns["Id"].AutoIncrementSeed = Convert.ToInt64(DS.Tables[0].Rows[DS.Tables[0].Rows.Count - 1]["Id"]) + 10;
-                DS.Tables[0].Columns["Id"].AutoIncrementStep = 10;//l'increment à ajouter lors de chaque ajout
+                    DS.Tables[1].Columns["Id"].AutoIncrementSeed = Convert.ToInt32(DS.Tables[1].Rows[DS.Tables[1].Rows.Count - 1]["Id"]) + 10;
+                DS.Tables[1].Columns["Id"].AutoIncrementStep = 10;//l'increment à ajouter lors de chaque ajout
 
                 //Set Auto-Incriment Priamry key column for the Task table
-                DS.Tables[1].Columns["Code"].AllowDBNull = false;
-                DS.Tables[1].Columns["Code"].AutoIncrement = true;//precise si la colonne est automatiquement 
-                if (DS.Tables[1].Rows.Count == 0)
-                    DS.Tables[1].Columns["Code"].AutoIncrementSeed = 10;
+                DS.Tables[0].Columns["Code"].AllowDBNull = false;
+                DS.Tables[0].Columns["Code"].AutoIncrement = true;//precise si la colonne est automatiquement 
+                if (DS.Tables[0].Rows.Count == 0)
+                    DS.Tables[0].Columns["Code"].AutoIncrementSeed = 10;
                 else
-                    DS.Tables[1].Columns["Code"].AutoIncrementSeed = Convert.ToInt64(DS.Tables[1].Rows[DS.Tables[1].Rows.Count - 1]["Code"]) + 10;
-                DS.Tables[1].Columns["Code"].AutoIncrementStep = 10;//l'increment à ajouter lors de chaque ajout
+                    DS.Tables[0].Columns["Code"].AutoIncrementSeed = Convert.ToInt32(DS.Tables[0].Rows[DS.Tables[0].Rows.Count - 1]["Code"]) + 10;
+                DS.Tables[0].Columns["Code"].AutoIncrementStep = 10;//l'increment à ajouter lors de chaque ajout
 
 
                 //set primary key for the added DtaTable
-                DS.Tables[0].PrimaryKey = new DataColumn[] { DS.Tables[0].Columns["Id"] };
-                DS.Tables[1].PrimaryKey = new DataColumn[] { DS.Tables[1].Columns["Code"] };
+                DS.Tables[1].PrimaryKey = new DataColumn[] { DS.Tables[1].Columns["Id"] };
+                DS.Tables[0].PrimaryKey = new DataColumn[] { DS.Tables[0].Columns["Code"] };
                 DS.Tables[2].PrimaryKey = new DataColumn[] { DS.Tables[2].Columns["IdRobot"], DS.Tables[2].Columns["CodeTask"] };
 
 
@@ -145,7 +147,7 @@ namespace RoboCoop
 
                 ForeignKeyConstraint RobotTask_RobtFK = new ForeignKeyConstraint
                ("RobotTask_To_Robot_FK",
-                DS.Tables[0].Columns["Id"],
+                DS.Tables[1].Columns["Id"],
                 DS.Tables[2].Columns["IdRobot"]);
                 RobotTask_RobtFK.DeleteRule = Rule.None;
                 // if "Rule.Cascade" Cannot delete value that has associated existing Module.  
@@ -153,7 +155,7 @@ namespace RoboCoop
 
                 ForeignKeyConstraint RobotTask_TaskFK = new ForeignKeyConstraint
                ("RobotTask_To_Task_FK",
-                DS.Tables[1].Columns["Code"],
+                DS.Tables[0].Columns["Code"],
                 DS.Tables[2].Columns["CodeTask"]);
                 RobotTask_TaskFK.DeleteRule = Rule.None;
                 // if "Rule.Cascade" Cannot delete value that has associated existing Module.  

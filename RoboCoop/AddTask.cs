@@ -21,6 +21,7 @@ namespace RoboCoop
                 //row[1] = txt_name.Text;
                 row[2] = decimal.Parse(txt_duration.Text);
                 row[3] = cmb_status.Text;
+                row[4] = rch_description.Text;
                 Form1.DS.Tables["TaskTab"].Rows.Add(row);
                 MessageBox.Show("Tache ajoutée avec succès...");
 
@@ -35,7 +36,7 @@ namespace RoboCoop
 
         private void AddTask_Load(object sender, EventArgs e)
         {
-           txt_code.Text=(Convert.ToInt32(Form1.DS.Tables[1].Rows[Form1.DS.Tables[1].Rows.Count - 1]["Code"]) + 10).ToString();
+           txt_code.Text=(Convert.ToInt32(Form1.DS.Tables[0].Rows[Form1.DS.Tables[0].Rows.Count - 1]["Code"]) + 10).ToString();
             txt_code.Enabled = false;
         }
     }
